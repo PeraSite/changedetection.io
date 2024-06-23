@@ -165,33 +165,34 @@ class perform_site_check(difference_detection_processor):
                 # Does it have some ld+json price data? used for easier monitoring
                 update_obj['has_ldjson_price_data'] = html_tools.has_ldjson_product_info(self.fetcher.content)
 
+                if has_subtractive_selectors:
+                    html_content = html_tools.element_removal(subtractive_selectors, html_content)
+
                 # Then we assume HTML
                 if has_filter_rule:
-                    html_content = ""
-
+                    filtered_html = ""
                     for filter_rule in include_filters_rule:
                         # For HTML/XML we offer xpath as an option, just start a regular xPath "/.."
                         if filter_rule[0] == '/' or filter_rule.startswith('xpath:'):
-                            html_content += html_tools.xpath_filter(xpath_filter=filter_rule.replace('xpath:', ''),
-                                                                    html_content=self.fetcher.content,
+                            filtered_html += html_tools.xpath_filter(xpath_filter=filter_rule.replace('xpath:', ''),
+                                                                    html_content=html_content,
                                                                     append_pretty_line_formatting=not watch.is_source_type_url,
                                                                     is_rss=is_rss)
                         elif filter_rule.startswith('xpath1:'):
-                            html_content += html_tools.xpath1_filter(xpath_filter=filter_rule.replace('xpath1:', ''),
-                                                                    html_content=self.fetcher.content,
+                            filtered_html += html_tools.xpath1_filter(xpath_filter=filter_rule.replace('xpath1:', ''),
+                                                                    html_content=html_content,
                                                                     append_pretty_line_formatting=not watch.is_source_type_url,
                                                                     is_rss=is_rss)
                         else:
                             # CSS Filter, extract the HTML that matches and feed that into the existing inscriptis::get_text
-                            html_content += html_tools.include_filters(include_filters=filter_rule,
-                                                                       html_content=self.fetcher.content,
+                            filtered_html += html_tools.include_filters(include_filters=filter_rule,
+                                                                       html_content=html_content,
                                                                        append_pretty_line_formatting=not watch.is_source_type_url)
 
-                    if not html_content.strip():
+                    if len(filtered_html) == 0:
                         raise FilterNotFoundInResponse(include_filters_rule)
 
-                if has_subtractive_selectors:
-                    html_content = html_tools.element_removal(subtractive_selectors, html_content)
+                    html_content = filtered_html
 
                 if watch.is_source_type_url:
                     stripped_text_from_html = html_content
