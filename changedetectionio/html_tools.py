@@ -130,19 +130,19 @@ def xpath_filter(xpath_filter, html_content, append_pretty_line_formatting=False
         r = [r]
 
     for element in r:
-        # When there's more than 1 match, then add the suffix to separate each line
-        # And where the matched result doesn't include something that will cause Inscriptis to add a newline
-        # (This way each 'match' reliably has a new-line in the diff)
-        # Divs are converted to 4 whitespaces by inscriptis
-        if append_pretty_line_formatting and len(html_block) and (not hasattr( element, 'tag' ) or not element.tag in (['br', 'hr', 'div', 'p'])):
-            html_block += TEXT_FILTER_LIST_LINE_SUFFIX
-
         if type(element) == str:
             html_block += element
         elif issubclass(type(element), etree._Element) or issubclass(type(element), etree._ElementTree):
             html_block += etree.tostring(element, pretty_print=True).decode('utf-8')
         else:
             html_block += elementpath_tostring(element)
+
+        # When there's more than 1 match, then add the suffix to separate each line
+        # And where the matched result doesn't include something that will cause Inscriptis to add a newline
+        # (This way each 'match' reliably has a new-line in the diff)
+        # Divs are converted to 4 whitespaces by inscriptis
+        if append_pretty_line_formatting and len(html_block) and (not hasattr( element, 'tag' ) or not element.tag in (['br', 'hr', 'div', 'p'])):
+            html_block += TEXT_FILTER_LIST_LINE_SUFFIX
 
     return html_block
 
