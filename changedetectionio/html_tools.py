@@ -115,10 +115,10 @@ def xpath_filter(xpath_filter, html_content, append_pretty_line_formatting=False
     # xpath 2.0-3.1
     from elementpath.xpath3 import XPath3Parser
 
-    parser = etree.HTMLParser()
+    parser = etree.HTMLParser(encoding='utf-8')
     if is_rss:
         # So that we can keep CDATA for cdata_in_document_to_text() to process
-        parser = etree.XMLParser(strip_cdata=False)
+        parser = etree.XMLParser(encoding='utf-8', strip_cdata=False)
 
     tree = html.fromstring(bytes(html_content, encoding='utf-8'), parser=parser)
     html_block = ""
